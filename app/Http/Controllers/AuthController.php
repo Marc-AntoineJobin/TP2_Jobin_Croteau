@@ -128,10 +128,10 @@ class AuthController extends Controller
             'login' => 'required',
             'password' => 'required',
         ]);
-        $user = User::where('login', $request->login)->first();
-
-        $token = $user->createToken($user->login);
-
+        Auth::attempt($request->only('login', 'password'));
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+       
         return ['token' => $token->plainTextToken];
         
     } catch (ValidationException $ex) {
@@ -181,14 +181,15 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try{
-            $user = Auth::user();
             $request->validate([
                 'login' => 'required',
                 'password' => 'required',
             ]);
-            $user = User::where('login', $request->login)->first();
+            $user = Auth::user();
+            if (!$user) { //TODO ptet revoir, mettre message erreur dans catch
+                return response()->json(['message' => 'Unauthenticated.'], UNAUTHENTICATED);
+            }
             $user->tokens()->delete();
-    
             return response()->noContent();
         }
      catch (ValidationException $ex) {
