@@ -11,5 +11,9 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-   
+    public function show($id)
+    {
+        $user = User::findOrFail($id);
+        return new UserResource($user);
+    }
 }
