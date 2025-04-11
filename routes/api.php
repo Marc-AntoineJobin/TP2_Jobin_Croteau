@@ -20,7 +20,7 @@ Route::middleware('throttle:5,1')->group( function(){
 Route::middleware('auth:sanctum')->group( function(){
     Route::middleware([AdminMiddleware::class])->group( function(){
         Route::post('/film', 'App\Http\Controllers\FilmController@post');
-        Route::put('/film', 'App\Http\Controllers\FilmController@update');
+        Route::put('/film', 'App\Http\Controllers\FilmController@put');
         Route::delete('/film', 'App\Http\Controllers\FilmController@delete');
     });
     Route::post('/critic', 'App\Http\Controllers\CriticController@post')->middleware([CriticMiddleware::class]);

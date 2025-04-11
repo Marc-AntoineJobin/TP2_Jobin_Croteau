@@ -25,7 +25,7 @@ class AdminMiddleware
         }
         catch(Exception $e){
             return response()->json([
-                'message' => 'Unauthorized'
+                'message' => $e->getMessage()
             ], 401);
 
         }

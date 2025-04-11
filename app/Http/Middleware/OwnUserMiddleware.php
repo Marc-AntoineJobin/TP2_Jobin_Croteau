@@ -5,7 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
+use Illuminate\Support\Facades\Auth;
+use Exception;
 class OwnUserMiddleware
 {
     /**
@@ -15,6 +16,18 @@ class OwnUserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+    try{
+        if($request->email != Auth::user()->email){
+            return response()->json([
+                'message' => 'you can only access your own account'
+            ], 401);
+        }
         return $next($request);
+    }
+    catch(Exception $e){
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 500);
+        }
     }
 }

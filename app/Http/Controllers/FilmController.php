@@ -32,6 +32,20 @@ class FilmController extends Controller
             abort(SERVER_ERROR, 'Server error');
         }       
     }
+
+    public function put(Request $request, $id)
+    {
+        try
+        {
+            $film = $this->filmRepository->update($id, $request->all());
+            return (new FilmResource($film))->response()->setStatusCode(OK);
+        }
+        
+        catch(Exception $ex)
+        {
+            abort(SERVER_ERROR, 'Server error');
+        }       
+    }
     
 }
 

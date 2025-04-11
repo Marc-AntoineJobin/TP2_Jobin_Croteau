@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Critic;
+use Exception;
 
 class CriticMiddleware
 {
@@ -15,6 +17,20 @@ class CriticMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        try{
+        if($critic = Critic::where('film_id', $request->film_id)){
+            if($critic->user_id == $request->user_id){
+                return response()->json([
+                    'message' => 'You have already submitted a critic for this film'
+                ], 401);
+            }
+        }
         return $next($request);
+    }
+    catch(Exception $e){
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 500);
+    }
     }
 }
