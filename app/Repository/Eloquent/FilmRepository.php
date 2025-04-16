@@ -13,4 +13,6 @@ class FilmRepository extends BaseRepository implements FilmRepositoryInterface
     {
         parent::__construct($model);
     }
+
+
 }

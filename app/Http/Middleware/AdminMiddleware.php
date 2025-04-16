@@ -17,17 +17,13 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        try{
             $user = Auth::user();
-            if ( $user->role_id != 2){
-                return $next($request);
+            if ( $user->role_id != 2) {
+                return response()->json([
+                    'message' => 'Acess DENIED.'
+                ], 403);
             }
-        }
-        catch(Exception $e){
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 401);
-
-        }
+    
+            return $next($request);
     }
 }

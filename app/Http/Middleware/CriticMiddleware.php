@@ -17,7 +17,6 @@ class CriticMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        try{
         if($critic = Critic::where('film_id', $request->film_id)){
             if($critic->user_id == $request->user_id){
                 return response()->json([
@@ -26,11 +25,5 @@ class CriticMiddleware
             }
         }
         return $next($request);
-    }
-    catch(Exception $e){
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 500);
-    }
     }
 }

@@ -74,7 +74,7 @@ class AuthController extends Controller
                  'email' => $request->email,
                  'last_name' => $request->last_name,
                  'first_name' => $request->first_name,
-                 'role_id' => 1 // user ordinaire
+                 'role_id' => 1
              ]);
             return response()->json([
                     'message' => 'User created successfully',
@@ -131,10 +131,9 @@ class AuthController extends Controller
         ]);
         Auth::attempt($request->only('login', 'password'));
         $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-       
+        $token = $user->createToken($user->login);
+
         return ['token' => $token->plainTextToken];
-        
     } catch (ValidationException $ex) {
         abort(INVALID_DATA, $ex->getMessage());
     }
