@@ -186,7 +186,7 @@ class AuthController extends Controller
                 'password' => 'required',
             ]);
             $user = Auth::user();
-            if (!$user) { //TODO ptet revoir, mettre message erreur dans catch
+            if (!$user) { // pas sur si necessaire on ca le fais automatiquement
                 return response()->json(['message' => 'Unauthenticated.'], UNAUTHENTICATED);
             }
             $user->tokens()->delete();
