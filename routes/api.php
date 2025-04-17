@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->group( function(){
         Route::put('/films/{id}', 'App\Http\Controllers\FilmController@update');
         Route::delete('/films/{id}', 'App\Http\Controllers\FilmController@delete');
     });
-    Route::post('/critic', 'App\Http\Controllers\CriticController@post')->middleware([CriticMiddleware::class]);
+    Route::post('/critics', 'App\Http\Controllers\CriticController@create')->middleware([CriticMiddleware::class]);
     
     Route::middleware([OwnUserMiddleware::class])->group( function(){
     Route::get('/users/{id}', 'App\Http\Controllers\UserController@show');

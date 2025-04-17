@@ -11,5 +11,7 @@ use Tests\TestCase;
 class FilmTest extends TestCase
 {
     use DatabaseMigrations;
+
+
     
 }

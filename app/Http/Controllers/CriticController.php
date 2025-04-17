@@ -4,13 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Critic;
+use App\Repository\Eloquent\BaseRepository;
+use App\Repository\CriticRepositoryInterface;
+use App\Repository\Eloquent\CriticRepository;
+use App\Http\Resources\CriticResource;
 
 class CriticController extends Controller
 {
+    private CriticRepositoryInterface $criticRepository;
+
+    public function __construct(CriticRepositoryInterface $criticRepository)
+    {
+        $this->criticRepository = $criticRepository;
+    }
     /**
      * @OA\Post(
-     * path="/api/critic",
-     * tags={"critic"},
+     * path="/api/critics",
+     * tags={"critics"},
      * summary="Creates a critic",
      * @OA\Response(
      *     response=201,
@@ -42,20 +52,17 @@ class CriticController extends Controller
      * )
      */
 
-   public function post(Request $request)
+   public function create(Request $request)
    {
-       try {
-              $critic = new Critic();
-              $critic->user_id = $request->user()->id; 
-              $critic->film_id = $request->film_id;
-              $critic->score = $request->score;
-              $critic->comment = $request->comment;
-              $critic->save();
     
-              return response()->json(['success' => true, 'message' => 'Critic submitted successfully.']);
-       } catch (\Exception $e) {
-           return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        
-       }
+    try
+    {
+        $film = $this->criticRepository->create($request->all());
+        return (new CriticResource($film))->response()->setStatusCode(CREATED);
+    }
+    catch(Exception $ex)
+    {
+        abort(SERVER_ERROR, $ex->getMessage());
+    }  
    }
 }

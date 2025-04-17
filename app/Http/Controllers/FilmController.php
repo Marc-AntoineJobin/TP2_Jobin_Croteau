@@ -29,7 +29,7 @@ class FilmController extends Controller
         
         catch(Exception $ex)
         {
-            abort(SERVER_ERROR, 'Server error');
+            abort(SERVER_ERROR, $ex->getMessage());
         }       
     }
 
@@ -43,7 +43,7 @@ class FilmController extends Controller
         
         catch(Exception $ex)
         {
-            abort(SERVER_ERROR, 'Server error');
+            abort(SERVER_ERROR, $ex->getMessage());
         }       
     }
 
@@ -57,7 +57,7 @@ class FilmController extends Controller
         
         catch(Exception $ex)
         {
-            abort(SERVER_ERROR, 'Server error');
+            abort(SERVER_ERROR, $ex->getMessage());
         }       
     }
     

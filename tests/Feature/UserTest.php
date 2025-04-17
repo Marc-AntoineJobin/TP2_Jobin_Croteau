@@ -25,6 +25,30 @@ class UserTest extends TestCase
         ]);
     }
 
+    public function test_cant_create_a_new_user_with_invalid_email()
+    {
+        $user = User::factory()->create([
+            'email' => '',
+        ]);
+
+        $this->assertDatabaseMissing('users', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+
+    public function test_can_get_a_user()
+    {
+        $user = User::factory()->create();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+
     public function test_can_update_a_user()
     {
         $user = User::factory()->create();
