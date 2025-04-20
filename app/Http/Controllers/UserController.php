@@ -8,9 +8,19 @@ use App\Http\Resources\LanguageResource;
 use App\Models\User;
 use App\Models\Language;
 use Illuminate\Support\Facades\Validator;
+use App\Repository\UserRepository;
+use App\Repository\UserRepositoryInterface;
+
+
 
 class UserController extends Controller
 {
+    private UserRepositoryInterface $userRepository;
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
     /**
      * @OA\Get(
      *     path="/api/user/{id}",
@@ -34,7 +44,7 @@ class UserController extends Controller
     public function show($id)
     {
         try {
-            $user = UserRepository::find($id);
+            $user = $this->userRepository->getById($id);
         } catch (Exception $e) {
             return response()->json(['An error occured: ' => $e->getMessage()], 404);
         }
@@ -43,13 +53,19 @@ class UserController extends Controller
     public function updatePassword(Request $request)
     {
         try {
-            $user = auth()->user();
-            $user->password = bcrypt($request->password);
-            $user->save();
+            $validated = $request->validate([
+                'password' => 'required|string',
+            ]);
+
+            $userId = auth()->id();
+
+            $updatedUser = $this->userRepository->update($userId, [
+            'password' => bcrypt($validated['password']),
+            ]);
 
             return response()->json(['message' => 'Password updated successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['An error occured: ' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return response()->json([$e->getMessage()], 500);
         }
     }
 

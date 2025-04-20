@@ -17,13 +17,16 @@ class CriticMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($critic = Critic::where('film_id', $request->film_id)){
-            if($critic->user_id == $request->user_id){
-                return response()->json([
-                    'message' => 'You have already submitted a critic for this film'
-                ], 401);
-            }
+        $critic = Critic::where('film_id', $request->film_id)
+                        ->where('user_id', $request->user_id)
+                        ->first();
+
+        if ($critic) {
+            return response()->json([
+                'message' => 'You have already submitted a critic for this film'
+            ], 401);
         }
+
         return $next($request);
     }
 }

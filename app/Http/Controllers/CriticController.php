@@ -54,7 +54,6 @@ class CriticController extends Controller
 
    public function create(Request $request)
    {
-    
     try
     {
         $film = $this->criticRepository->create($request->all());

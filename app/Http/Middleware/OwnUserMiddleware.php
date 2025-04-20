@@ -16,10 +16,10 @@ class OwnUserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->email != Auth::user()->email){
+        if ((int) $request->route('id') !== Auth::id()) {
             return response()->json([
-                'message' => 'you can only access your own account'
-            ], 401);
+                'message' => 'You can only access your own account'
+            ], 403);
         }
         return $next($request);
     }
