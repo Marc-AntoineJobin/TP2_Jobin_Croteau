@@ -24,20 +24,16 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *     path="/api/user/{id}",
-     *     tags={"Albums"},
-     *     summary="Gets one album",
+     *     tags={"Users"},
+     *     summary="Gets one user",
      *     @OA\Response(
      *         response=200,
-     *         description="OK"
+     *         description="shows the user"
      *     ),
      *     @OA\Parameter(
-     *         description="Album ID",
-     *         in="path",
-     *         name="id",
+     *         description="user ID",
      *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
+     *         type="integer"
      *     )
      * )
      */
@@ -49,7 +45,6 @@ class UserController extends Controller
             return response()->json(['An error occured: ' => $e->getMessage()], 404);
         }
     }
-
     public function updatePassword(Request $request)
     {
         try {
@@ -60,7 +55,7 @@ class UserController extends Controller
             $userId = auth()->id();
 
             $updatedUser = $this->userRepository->update($userId, [
-            'password' => bcrypt($validated['password']),
+                'password' => bcrypt($validated['password']),
             ]);
 
             return response()->json(['message' => 'Password updated successfully'], 200);

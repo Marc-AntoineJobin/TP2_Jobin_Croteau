@@ -8,6 +8,7 @@ use App\Repository\Eloquent\BaseRepository;
 use App\Repository\CriticRepositoryInterface;
 use App\Repository\Eloquent\CriticRepository;
 use App\Http\Resources\CriticResource;
+use Exception;
 
 class CriticController extends Controller
 {
@@ -20,7 +21,6 @@ class CriticController extends Controller
     /**
      * @OA\Post(
      * path="/api/critics",
-     * tags={"critics"},
      * summary="Creates a critic",
      * @OA\Response(
      *     response=201,
@@ -52,16 +52,13 @@ class CriticController extends Controller
      * )
      */
 
-   public function create(Request $request)
-   {
-    try
+    public function create(Request $request)
     {
-        $film = $this->criticRepository->create($request->all());
-        return (new CriticResource($film))->response()->setStatusCode(CREATED);
+        try {
+            $film = $this->criticRepository->create($request->all());
+            return (new CriticResource($film))->response()->setStatusCode(CREATED);
+        } catch (Exception $ex) {
+            abort(SERVER_ERROR, $ex->getMessage());
+        }
     }
-    catch(Exception $ex)
-    {
-        abort(SERVER_ERROR, $ex->getMessage());
-    }  
-   }
 }

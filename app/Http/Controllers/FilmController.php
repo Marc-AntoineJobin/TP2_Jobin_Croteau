@@ -8,58 +8,44 @@ use App\Http\Resources\FilmResource;
 use App\Repository\Eloquent\FilmRepository;
 use App\Repository\FilmRepositoryInterface;
 use App\Repository\Eloquent\BaseRepository;
+use Exception;
 
 
 class FilmController extends Controller
-{   
+{
     private FilmRepositoryInterface $filmRepository;
 
     public function __construct(FilmRepositoryInterface $filmRepository)
     {
         $this->filmRepository = $filmRepository;
     }
-    
     public function create(Request $request)
     {
-        try
-        {
+        try {
             $film = $this->filmRepository->create($request->all());
             return (new FilmResource($film))->response()->setStatusCode(CREATED);
-        }
-        
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             abort(SERVER_ERROR, $ex->getMessage());
-        }       
+        }
     }
-
     public function update(Request $request, $id)
     {
-        try
-        {
+        try {
             $film = $this->filmRepository->update($id, $request->all());
             return (new FilmResource($film))->response()->setStatusCode(OK);
-        }
-        
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             abort(SERVER_ERROR, $ex->getMessage());
-        }       
+        }
     }
-
     public function delete($id)
     {
-        try
-        {
+        try {
             $this->filmRepository->delete($id);
             return response()->json(['message' => 'Film deleted successfully'], 200);
-        }
-        
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             abort(SERVER_ERROR, $ex->getMessage());
-        }       
+        }
     }
-    
+
 }
 
