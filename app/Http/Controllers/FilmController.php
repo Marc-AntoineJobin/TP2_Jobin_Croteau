@@ -19,6 +19,61 @@ class FilmController extends Controller
     {
         $this->filmRepository = $filmRepository;
     }
+    /**
+     * @OA\Post(
+     *     path="/api/films",
+     *     summary="create a film",
+     *  security={{"sanctum": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="title",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="release_year",
+     *                     type="year",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="length",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="description",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="special_features",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="image",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="language_id",
+     *                     type="integer",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="film created successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Invalid data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function create(Request $request)
     {
         try {
@@ -28,6 +83,61 @@ class FilmController extends Controller
             abort(SERVER_ERROR, $ex->getMessage());
         }
     }
+    /**
+     * @OA\Put(
+     *     path="/api/films",
+     *     summary="update a film",
+     *  security={{"sanctum": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="title",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="release_year",
+     *                     type="year",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="length",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="description",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="special_features",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="image",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="language_id",
+     *                     type="integer",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="film updated successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Invalid data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function update(Request $request, $id)
     {
         try {
@@ -37,6 +147,33 @@ class FilmController extends Controller
             abort(SERVER_ERROR, $ex->getMessage());
         }
     }
+    /**
+     * @OA\Delete(
+     *     path="/api/films/{id}",
+     *     summary="delete a film",
+     *  security={{"sanctum": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="id",
+     *                     type="integer",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="film deleted successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function delete($id)
     {
         try {

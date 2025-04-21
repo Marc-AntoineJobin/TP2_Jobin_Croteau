@@ -45,6 +45,37 @@ class UserController extends Controller
             return response()->json(['An error occured: ' => $e->getMessage()], 404);
         }
     }
+    /**
+     * @OA\Put(
+     *     path="/api/user/{id}",
+     *     summary="update the password of the user",
+     *  security={{"sanctum": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="string",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="user password updated successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Invalid data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function updatePassword(Request $request)
     {
         try {
