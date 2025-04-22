@@ -22,8 +22,8 @@ class CreateFilmsTable extends Migration
             $table->text('description');
             $table->string('rating', 5);
             $table->string('special_features', 200);
-            $table->string('image', 40);            
-            $table->foreignId('language_id')->constrained();
+            $table->string('image', 40);
+            $table->foreignId('language_id')->constrained()->onDelete('cascade');
         });
     }
 

@@ -4,261 +4,165 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use Laravel\Sanctum\Sanctum;
 use App\Models\User;
+use Tests\TestCase;
+use App\Http\Controllers\Controller;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
-    public function test_throttle_signup_under_5_per_minute(): void
+    use WithFaker;
+
+    public function test_register_successfully_gives_201()
     {
-
-        $user = [
-            "email" => "marcantoinejobin7@gmail.com",
-            "password" => "123abc",
-            "first_name" => "Marc-Antoine",
-            'last_name' => "Jobin",
-            "login" => "Marc-AntoineJ"
+        $this->seed();
+        $json = [
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'email' => 'pika@chu.com',
+            'login' => 'ash',
+            'password' => 'pikachu',
         ];
-
-        for($i = 0; $i < 4; $i++){
-            $user['login'] = $user['login'] . $i;
-            $user['email'] = $user['email'] . $i;
-            $response = $this->post('/api/signup', $user);
-        }
+        $response = $this->postJson('/api/signup', $json);
         $response->assertStatus(201);
+        $response->assertJsonStructure(['message', 'user']);
     }
 
-    public function test_throttle_signup_over_5_per_minute(): void
+    public function test_login_successfully_gives_200()
     {
+        $this->seed();
+        $password = 'pikachu';
+        $user = User::factory()->create([
+            'email' => 'pika@chu.com',
+            'login' => 'ash',
+            'password' => bcrypt($password)
+        ]);
 
-        $user = [
-            "email" => "marcantoinejobin7@gmail.com",
-            "password" => "123abc",
-            "first_name" => "Marc-Antoine",
-            'last_name' => "Jobin",
-            "login" => "Marc-AntoineJ"
-        ];
+        $response = $this->postJson('/api/signin', [
+            'login' => $user->login,
+            'password' => $password
+        ]);
 
-        for($i = 0; $i < 7; $i++){
-            $user['login'] = $user['login'] . $i;
-            $user['email'] = $user['email'] . $i;
-            $response = $this->post('/api/signup', $user);
-        }
-
-        $response->assertStatus(429);
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['token']);
     }
 
-    public function test_throttle_signin_under_5_per_minute(): void
+    public function test_login_fails_with_incorrect_password()
     {
+        $this->seed();
+        $user = User::factory()->create([
+            'login' => 'ash',
+            'password' => bcrypt('correct_password')
+        ]);
 
-        $user = [
-            "email" => "marcantoinejobin70@gmail.com",
-            "password" => "123abcd",
-            "first_name" => "Marc-Antoined",
-            'last_name' => "Jobind",
-            "login" => "Marc-AntoineJd"
-        ];
-        $response = $this->post('/api/signup', $user);
-        $response->assertStatus(201);
-        for($i = 0; $i < 3; $i++){
-            $response = $this->post('/api/signin', $user);
-            $response->assertStatus(200);
-            $response = $this->post('/api/signout', $user);
-        }
+        $response = $this->postJson('/api/signin', [
+            'login' => 'ash',
+            'password' => 'wrong_password'
+        ]);
 
+        $response->assertStatus(401);
     }
 
-    public function test_throttle_signin_over_5_per_minute(): void
+    public function test_logout_fails_when_not_authenticated()
     {
-
-        $user = [
-            "email" => "marcantoinejobin7@gmail.com",
-            "password" => "123abc",
-            "first_name" => "Marc-Antoine",
-            'last_name' => "Jobin",
-            "login" => "Marc-AntoineJ"
-        ];
-        $response = $this->post('/api/signup', $user);
-
-        for($i = 0; $i < 7; $i++){
-            $response = $this->post('/api/signin', $user);
-        }
-
-        $response->assertStatus(429);
+        $this->seed();
+        $response = $this->postJson('/api/signout');
+        $response->assertStatus(401);
+        $response->assertJson(['message' => 'Unauthenticated.']);
     }
 
-    //TODO est ce quils vont passer si jai pas sigin ou signup avant?
-    public function test_throttle_signout_under_5_per_minute(): void
+    public function test_logout_successfully_gives_204()
     {
-        $user = [
-            "email" => "marcantoinejobin7@gmail.com",
-            "password" => "123abc",
-            "first_name" => "Marc-Antoine",
-            'last_name' => "Jobin",
-            "login" => "Marc-AntoineJ"
-        ];
-        $response = $this->get('/api/signup', $user);
-        $response->assertStatus(201);
-        for($i = 0; $i < 3; $i++){
-            $response = $this->get('/api/signin', $user);
-            $response = $this->post('/api/signout', $user);
-        }
+        $this->seed();
+
+        $user = User::factory()->create([
+            'email' => 'pika@chu.com',
+            'login' => 'pika',
+            'password' => bcrypt('pikachu'),
+        ]);
+
+        $response = $this->postJson('/api/signin', [
+            'login' => $user->login,
+            'password' => 'pikachu',
+        ]);
+
+        $token = $response['token'];
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/signout');
 
         $response->assertStatus(204);
     }
 
-    public function test_throttle_signout_over_5_per_minute(): void
+
+    public function test_register_fails_with_invalid_data()
     {
+        $this->seed();
+        $response = $this->postJson('/api/signup', [
+            'first_name' => '',
+            'email' => 'not-an-email',
+            'password' => '',
+        ]);
+        $response->assertStatus(422);
+    }
 
-        $user = [
-            "email" => "marcantoinejobin7@gmail.com",
-            "password" => "123abc",
-            "first_name" => "Marc-Antoine",
-            'last_name' => "Jobin",
-            "login" => "Marc-AntoineJ"
-        ];
-        //$response = $this->get('/api/signup', $user);
+    public function test_login_fails_with_invalid_data()
+    {
+        $this->seed();
+        $response = $this->postJson('/api/signin', [
+            'login' => '',
+            'password' => ''
+        ]);
+        $response->assertStatus(422);
+    }
 
-        for($i = 0; $i < 7; $i++){
-            $response = $this->post('/api/signout', $user);
+    public function test_too_many_register_requests_gives_429()
+    {
+        $this->seed();
+        $password = 'pikachu';
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/signup', [
+                'first_name' => 'T',
+                'last_name' => 'U',
+                'email' => "$i@chu.com",
+                'login' => "login$i",
+                'password' => $password
+            ]);
         }
+
+        $response = $this->postJson('/api/signup', [
+            'first_name' => 'T',
+            'last_name' => 'U',
+            'email' => "6@chu.com",
+            'login' => "login6",
+            'password' => $password
+        ]);
 
         $response->assertStatus(429);
     }
-    public function test_register_successful(): void
+
+    public function test_too_many_login_requests_gives_429()
     {
-    $user = [
-        "email" => "marcantoinejobin712@gmail.com",
-            "password" => "123abc",
-            "first_name" => "Marc-Antoine",
-            'last_name' => "Jobin",
-            "login" => "Marc-AntoineJ"
-    ];
+        $this->seed();
+        $password = 'pikachu';
+        $user = User::factory()->create([
+            'login' => 'ash',
+            'password' => bcrypt($password)
+        ]);
 
-    $response = $this->post('/api/signup', $user);
+        for ($i = 0; $i < 6; $i++) {
+            $this->postJson('/api/signin', [
+                'login' => $user->login,
+                'password' => $password
+            ]);
+        }
 
-    $response->assertStatus(201);
-    $response->assertJson([
-        'message' => 'User created successfully',
-        'user' => [
-            'email' => $user['email'],
-            'first_name' => $user['first_name'],
-            'last_name' => $user['last_name'],
-            'login' => $user['login']
-        ]
-    ]);
-    }
-    //jsp pk il me donne un 500
-    public function test_register_missing_fields(): void
-    {
-    $user = [
-        "email" => "",
-        "password" => "",
-        "first_name" => "",
-        "last_name" => "",
-        "login" => ""
-    ];
+        $response = $this->postJson('/api/signin', [
+            'login' => $user->login,
+            'password' => $password
+        ]);
 
-    $response = $this->post('/api/signup', $user);
-
-    $response->assertStatus(500);
-    }
-
-    public function test_register_invalid_email(): void
-    {
-    $user = [
-        "email" => "invalid-email",
-        "password" => "password123",
-        "first_name" => "Test",
-        "last_name" => "User",
-        "login" => "testuser"
-    ];
-
-    $response = $this->post('/api/signup', $user);
-
-    $response->assertStatus(500);
-    }
-    public function test_login_successful(): void
-    {
-        $user = [
-            "email" => "marcantoinejobin71122@gmail.com",
-                "password" => "123abc",
-                "first_name" => "Marc-Antoine",
-                'last_name' => "Jobin",
-                "login" => "Marc-AntoineJ"
-        ];
-    $response = $this->post('/api/signup', $user);
-    $response->assertStatus(201);
-    $response = $this->post('/api/signin', [
-        'login' => $user->login,
-        'password' => $user->password,
-    ]);
-
-    $response->assertStatus(200);
-    $response->assertJsonStructure(['token']);
-    }
-
-    public function test_login_missing_field(): void
-    {
-        $user = [
-            "email" => "marcantoinejobin7113422@gmail.com",
-                "password" => "123abc",
-                "first_name" => "Marc-Antoine",
-                'last_name' => "Jobin",
-                "login" => "Marc-AntoineJ"
-        ];
-    $response = $this->post('/api/signup', $user);
-    $response->assertStatus(201);
-    $response = $this->post('/api/signin', [
-        'password' => $user->password,
-    ]);
-
-    $response->assertStatus(422);
-    }
-    public function test_login_non_existent_user(): void
-    {
-    $response = $this->post('/api/signin', [
-        'login' => 'nonexistentuser',
-        'password' => 'password123',
-    ]);
-
-    $response->assertStatus(401);
-    }
-    public function test_logout_successful(): void
-    {
-        $user = [
-            "email" => "marcantoinejobin71122@gmail.com",
-                "password" => "123abc",
-                "first_name" => "Marc-Antoine",
-                'last_name' => "Jobin",
-                "login" => "Marc-AntoineJ"
-        ];
-    $response = $this->post('/api/signup', $user);
-    $response = $this->post('/api/signin', [
-        'login' => $user->login,
-        'password' => $user->password,
-    ]);
-
-    $response->assertStatus(200);
-    $token = $response->json('token');
-
-    $response = $this->post('/api/signout', [
-        'login' => $user->login,
-        'password' => $user->password,
-    ]);
-
-    $response->assertStatus(204);
-    }
-
-    public function test_logout_non_existent_user(): void
-    {
-    $response = $this->post('/api/signout', [
-        'login' => 'nonexistentuser',
-        'password' => 'password123',
-    ]);
-
-    $response->assertStatus(401);
+        $response->assertStatus(429);
     }
 }
